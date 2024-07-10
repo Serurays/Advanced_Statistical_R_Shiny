@@ -1,0 +1,64 @@
+---
+title: "Shiny_App"
+author: "Serra Aksoy"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(shiny)
+```
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Shiny App"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("slider", "Slider Input:", min = 1, max = 100, value = 50),
+      numericInput("numeric", "Numeric Input:", value = 10, min = 1, max = 100),
+      textInput("text", "Text Input:", value = "Type something..."),
+      selectInput("select", "Select Input:", choices = c("Choice 1", "Choice 2", "Choice 3")),
+      dateInput("date", "Date Input:", value = Sys.Date())
+    ),
+    mainPanel(
+      textOutput("text_output"),
+      tableOutput("table_output"),
+      plotOutput("plot_output"),
+      textOutput("numeric_text_output"),
+      verbatimTextOutput("verbatim_text_output")
+    )
+  )
+)
+```
+
+```{r}
+server <- function(input, output) {
+  output$text_output <- renderText({
+    paste("You have entered:", input$text)
+  })
+  
+  output$table_output <- renderTable({
+    data.frame(
+      Input_Type = c("Slider", "Numeric", "Text", "Select", "Date"),
+      Value = c(input$slider, input$numeric, input$text, input$select,
+                as.character(input$date))
+    )
+  })
+  
+  output$plot_output <- renderPlot({
+    hist(rnorm(input$slider), main = "Histogram of Random Normal Distribution")
+  })
+  
+  output$numeric_text_output <- reactive({
+    paste("Numeric input is:", input$numeric)
+  })
+  
+  output$verbatim_text_output <- reactive({
+    paste("print('Hello World')")
+  })
+}
+```
+
+```{r}
+shinyApp(ui = ui, server = server)
+```
